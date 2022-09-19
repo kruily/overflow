@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// NewApp 新建应用
 func NewApp(obj interface{}) (*Application, error) {
 	value := correction(reflect.ValueOf(obj))
 	if value.Kind() != reflect.Struct {
@@ -16,6 +17,8 @@ func NewApp(obj interface{}) (*Application, error) {
 	app.Parse = res
 	return app, nil
 }
+
+// Overflow 移除器
 func (a *Application) Overflow(arr []string) {
 	for _, item := range arr {
 		if strings.Contains(item, ".") {
@@ -27,10 +30,13 @@ func (a *Application) Overflow(arr []string) {
 		}
 	}
 }
+
+// Result 拿到结果
 func (a *Application) Result() map[string]interface{} {
 	return a.Parse
 }
 
+// 解析结构体
 func parseStruct(obj interface{}) map[string]interface{} {
 	value := correction(reflect.ValueOf(obj))
 	types := value.Type()
@@ -84,6 +90,8 @@ func parseStruct(obj interface{}) map[string]interface{} {
 	ch <- nil
 	return result
 }
+
+// 移除器中-递归删除
 func roll(arr []string, sc map[string]interface{}, idx *int64) {
 	if *idx < int64(len(arr)-1) {
 		d := sc
@@ -95,6 +103,7 @@ func roll(arr []string, sc map[string]interface{}, idx *int64) {
 	}
 }
 
+// 反射修正
 func correction(value reflect.Value) reflect.Value {
 	for value.Kind() == reflect.Ptr {
 		value = value.Elem()
@@ -102,12 +111,12 @@ func correction(value reflect.Value) reflect.Value {
 	return value
 }
 
+// 管道接收
 func worker(ch chan map[string]interface{}, result map[string]interface{}) {
 	for {
 		select {
 		case res, ok := <-ch:
 			if !ok {
-				//wg.Done()
 				return
 			}
 			for k, v := range res {
