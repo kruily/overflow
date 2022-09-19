@@ -26,7 +26,7 @@ func main() {
 	app, err := core.NewApp(&Test{
 		Id:       1,
 		Username: "jingxiu",
-		Password: "jingxiu1016",
+		Password: "testtestest",
 	})
 	if err != nil {
 		fmt.Printf("error: %#v\n\n", err.Error())
@@ -38,6 +38,7 @@ func main() {
 
 ```
 ## 移除器
+并未对不存在的键进行安全检测，因为不存在的键执行空操作
 ```go
 app.Overflow([]string{...})
 ```

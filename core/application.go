@@ -93,6 +93,10 @@ func parseStruct(obj interface{}) map[string]interface{} {
 
 // 移除器中-递归删除
 func roll(arr []string, sc map[string]interface{}, idx *int64) {
+	//_, ok := sc[arr[*idx]]
+	//if !ok {
+	//	panic(ErrorDeleteKey)
+	//}
 	if *idx < int64(len(arr)-1) {
 		d := sc
 		m := d[arr[*idx]].(map[string]interface{})
