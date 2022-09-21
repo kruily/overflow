@@ -61,7 +61,7 @@ func parseStruct(obj interface{}) map[string]interface{} {
 				ch <- map[string]interface{}{tag: res}
 			case reflect.Slice:
 				if !v.IsNil() && v.Index(0).Kind() != reflect.Struct && v.Index(0).Kind() != reflect.Ptr {
-					//result[tag] = v.Interface()
+					// result[tag] = v.Interface()
 					ch <- map[string]interface{}{tag: v.Interface()}
 				} else {
 					wg := sync.WaitGroup{}
@@ -78,9 +78,12 @@ func parseStruct(obj interface{}) map[string]interface{} {
 					//result[tag] = slice
 					ch <- map[string]interface{}{tag: slice}
 				}
+			//case reflect.
 			default:
 				//result[tag] = v.Interface()
-				ch <- map[string]interface{}{tag: v.Interface()}
+				if v.IsValid() {
+					ch <- map[string]interface{}{tag: v.Interface()}
+				}
 			}
 
 			wg.Done()
