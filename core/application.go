@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"sync"
@@ -8,7 +9,10 @@ import (
 
 // NewApp 新建应用
 func NewApp(obj interface{}) (*Application, error) {
-	value := correction(reflect.ValueOf(obj))
+	value, err := correction(reflect.ValueOf(obj))
+	if err != nil {
+		return nil, err
+	}
 	if value.Kind() != reflect.Struct {
 		return nil, ErrorStructType
 	}
@@ -38,7 +42,10 @@ func (a *Application) Result() map[string]interface{} {
 
 // 解析结构体
 func parseStruct(obj interface{}) map[string]interface{} {
-	value := correction(reflect.ValueOf(obj))
+	value, err := correction(reflect.ValueOf(obj))
+	if err != nil {
+		return map[string]interface{}{}
+	}
 	types := value.Type()
 	// 解析到Parse 字段
 	result := make(map[string]interface{})
@@ -48,6 +55,7 @@ func parseStruct(obj interface{}) map[string]interface{} {
 	wg := sync.WaitGroup{}
 	wg.Add(value.NumField())
 	for i := 0; i < value.NumField(); i++ {
+
 		go func(v reflect.Value, i int) {
 			//v := value.Field(i)
 			tag := types.Field(i).Tag.Get(TAGNAME)
@@ -83,6 +91,8 @@ func parseStruct(obj interface{}) map[string]interface{} {
 				//result[tag] = v.Interface()
 				if v.IsValid() {
 					ch <- map[string]interface{}{tag: v.Interface()}
+				} else {
+					ch <- map[string]interface{}{}
 				}
 			}
 
@@ -102,7 +112,11 @@ func roll(arr []string, sc map[string]interface{}, idx *int64) {
 	//}
 	if *idx < int64(len(arr)-1) {
 		d := sc
-		m := d[arr[*idx]].(map[string]interface{})
+		m, ok := d[arr[*idx]].(map[string]interface{})
+		if !ok {
+			fmt.Printf("未找到的key：%#v\n", arr[*idx])
+			return
+		}
 		next := *idx + 1
 		roll(arr[*idx:], m, &next)
 	} else {
@@ -111,11 +125,15 @@ func roll(arr []string, sc map[string]interface{}, idx *int64) {
 }
 
 // 反射修正
-func correction(value reflect.Value) reflect.Value {
+func correction(value reflect.Value) (reflect.Value, error) {
+	if value.IsZero() {
+		return value, ErrorStructNilPointer
+	}
 	for value.Kind() == reflect.Ptr {
 		value = value.Elem()
 	}
-	return value
+
+	return value, nil
 }
 
 // 管道接收

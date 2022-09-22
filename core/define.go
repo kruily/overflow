@@ -11,8 +11,8 @@ type (
 )
 
 var (
-	ErrorStructType = errors.New("非结构体类型")
-	//ErrorStructNilPointer = errors.New("结构体·空指针异常")
+	ErrorStructType       = errors.New("非结构体类型")
+	ErrorStructNilPointer = errors.New("结构体·空指针异常")
 
 	//ErrorDeleteKey = errors.New("想要删除不存在的键")
 )
